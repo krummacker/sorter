@@ -81,7 +81,7 @@ func (g StandardSorter) Sort(list []int) []int {
 type GoroutineSorter struct{}
 
 // Sorts and returns the specified list using the quick sort algorithm.
-// Uses Go rourtines for large lists. Leaves the specified list unchanged.
+// Uses goroutines for large lists. Leaves the specified list unchanged.
 func (g GoroutineSorter) Sort(list []int) []int {
 	if len(list) < 2 {
 		return list // already sorted
