@@ -3,7 +3,7 @@ package main
 import "sort"
 
 type Sorter interface {
-	Sort(list []int) []int
+	Sort(list []int)
 }
 
 // all sorter implementations
@@ -19,36 +19,37 @@ var Sorters = []Sorter{
 
 type BubbleSorter struct{}
 
-// Sorts and returns the specified list using the bubble sort algorithm.
-// Leaves the specified list unchanged.
-func (b BubbleSorter) Sort(list []int) []int {
-	result := make([]int, len(list))
-	copy(result, list)
-	for i := 0; i < len(result)-1; i++ {
-		for j := 0; j < len(result)-1-i; j++ {
-			if result[j] > result[j+1] {
-				result[j], result[j+1] = result[j+1], result[j]
+// Sorts the specified list using the bubblesort algorithm.
+func (b BubbleSorter) Sort(slice []int) {
+	for i := 0; i < len(slice)-1; i++ {
+		for j := 0; j < len(slice)-1-i; j++ {
+			if slice[j] > slice[j+1] {
+				slice[j], slice[j+1] = slice[j+1], slice[j]
 			}
 		}
 	}
-	return result
 }
 
 // ---------------------------------------------------------------------------------
 
 type QuickSorter struct{}
 
-// Sorts and returns the specified list using the quick sort algorithm.
-// Leaves the specified list unchanged.
-func (q QuickSorter) Sort(list []int) []int {
-	if len(list) < 2 {
-		return list // already sorted
-	}
-	pivot := list[0]
-	smaller := make([]int, 0, len(list))
-	bigger := make([]int, 0, len(list))
+// Sorts the specified list using the quicksort algorithm.
+func (q QuickSorter) Sort(slice []int) {
+	tmp := quicksort(slice)
+	copy(slice, tmp)
+}
 
-	for _, element := range list[1:] {
+// internal helper
+func quicksort(slice []int) []int {
+	if len(slice) < 2 {
+		return slice // already sorted
+	}
+	pivot := slice[0]
+	smaller := make([]int, 0, len(slice))
+	bigger := make([]int, 0, len(slice))
+
+	for _, element := range slice[1:] {
 		if element < pivot {
 			smaller = append(smaller, element)
 		} else {
@@ -56,10 +57,10 @@ func (q QuickSorter) Sort(list []int) []int {
 		}
 	}
 
-	result := make([]int, 0, len(list))
-	result = append(result, q.Sort(smaller)...)
+	result := make([]int, 0, len(slice))
+	result = append(result, quicksort(smaller)...)
 	result = append(result, pivot)
-	result = append(result, q.Sort(bigger)...)
+	result = append(result, quicksort(bigger)...)
 	return result
 }
 
@@ -67,30 +68,32 @@ func (q QuickSorter) Sort(list []int) []int {
 
 type StandardSorter struct{}
 
-// Sorts and returns the specified list using the standard Go sort algorithm.
-// Leaves the specified list unchanged.
-func (g StandardSorter) Sort(list []int) []int {
-	result := make([]int, len(list))
-	copy(result, list)
-	sort.Ints(result)
-	return result
+// Sorts the specified list using the standard Go sort algorithm.
+func (g StandardSorter) Sort(slice []int) {
+	sort.Ints(slice)
 }
 
 // ---------------------------------------------------------------------------------
 
 type GoroutineSorter struct{}
 
-// Sorts and returns the specified list using the quick sort algorithm.
-// Uses goroutines for large lists. Leaves the specified list unchanged.
-func (g GoroutineSorter) Sort(list []int) []int {
-	if len(list) < 2 {
-		return list // already sorted
-	}
-	pivot := list[0]
-	smaller := make([]int, 0, len(list))
-	bigger := make([]int, 0, len(list))
+// Sorts and returns the specified list using the quicksort algorithm.
+// Uses goroutines for large lists.
+func (g GoroutineSorter) Sort(slice []int) {
+	tmp := quicksortGoroutine(slice)
+	copy(slice, tmp)
+}
 
-	for _, element := range list[1:] {
+// internal helper
+func quicksortGoroutine(slice []int) []int {
+	if len(slice) < 2 {
+		return slice // already sorted
+	}
+	pivot := slice[0]
+	smaller := make([]int, 0, len(slice))
+	bigger := make([]int, 0, len(slice))
+
+	for _, element := range slice[1:] {
 		if element < pivot {
 			smaller = append(smaller, element)
 		} else {
@@ -102,19 +105,19 @@ func (g GoroutineSorter) Sort(list []int) []int {
 	var last []int
 
 	// Only use goroutines if we have a lot of entries.
-	if len(list) > 5000 {
+	if len(slice) > 5000 {
 		firstChannel := make(chan []int)
 		lastChannel := make(chan []int)
-		go g.channelSort(smaller, firstChannel)
-		go g.channelSort(bigger, lastChannel)
+		go channelSort(smaller, firstChannel)
+		go channelSort(bigger, lastChannel)
 		first = <-firstChannel
 		last = <-lastChannel
 	} else {
-		first = g.Sort(smaller)
-		last = g.Sort(bigger)
+		first = quicksortGoroutine(smaller)
+		last = quicksortGoroutine(bigger)
 	}
 
-	result := make([]int, 0, len(list))
+	result := make([]int, 0, len(slice))
 	result = append(result, first...)
 	result = append(result, pivot)
 	result = append(result, last...)
@@ -122,8 +125,8 @@ func (g GoroutineSorter) Sort(list []int) []int {
 }
 
 // internal helper to call goroutine
-func (g GoroutineSorter) channelSort(list []int, c chan []int) {
-	c <- g.Sort(list)
+func channelSort(list []int, c chan []int) {
+	c <- quicksortGoroutine(list)
 }
 
 // ---------------------------------------------------------------------------------
@@ -132,15 +135,7 @@ type InPlaceSorter struct{}
 
 // Sorts and returns the specified list using the quick sort algorithm.
 // Creates one copy of the list and sorts there in place.
-// Leaves the specified list unchanged.
-func (i InPlaceSorter) Sort(list []int) []int {
-	result := make([]int, len(list))
-	copy(result, list)
-	sortInPlace(result)
-	return result
-}
-
-func sortInPlace(slice []int) {
+func (i InPlaceSorter) Sort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
 	}
@@ -163,6 +158,6 @@ func sortInPlace(slice []int) {
 		pivotIndex = left - 1
 	}
 
-	sortInPlace(slice[:pivotIndex])
-	sortInPlace(slice[pivotIndex+1:])
+	i.Sort(slice[:pivotIndex])
+	i.Sort(slice[pivotIndex+1:])
 }

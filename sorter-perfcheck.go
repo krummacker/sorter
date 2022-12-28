@@ -39,7 +39,7 @@ func main() {
 	for _, size := range sizes {
 		sorterToDuration := make(map[string][]int)
 		for i := 0; i < loops; i++ {
-			data := createRandomInts(size)
+			original := createRandomInts(size)
 			for _, sorter := range Sorters {
 				name := reflect.TypeOf(sorter).Name()
 
@@ -48,6 +48,8 @@ func main() {
 					continue
 				}
 
+				data := make([]int, len(original))
+				copy(data, original)
 				before := time.Now().UnixMicro()
 				sorter.Sort(data)
 				duration := time.Now().UnixMicro() - before
