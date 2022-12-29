@@ -29,14 +29,14 @@ func average(input []int) int {
 }
 
 func main() {
-	sizes := []int{10, 50, 100, 500, 1000, 5000, 7500, 10000, 50000, 100000, 500000}
-	var loops int = 10
+	sizes := []int{10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000}
+	loops := 10
 
 	rand.Seed(time.Now().UnixNano())
 
 	fmt.Println()
-	fmt.Println("Elements |      Bubble |       Quick |    Standard |   Goroutine |    In Place ")
-	fmt.Println("---------+-------------+-------------+-------------+-------------+-------------")
+	fmt.Println("Elements |      Bubble |    Standard |       Quick |   Goroutine ")
+	fmt.Println("---------+-------------+-------------+-------------+-------------")
 	for _, size := range sizes {
 		functionToDuration := make(map[string][]int)
 		for i := 0; i < loops; i++ {
@@ -58,13 +58,12 @@ func main() {
 			}
 		}
 
-		fmt.Printf("%8d |  %10d |  %10d |  %10d |  %10d |  %10d",
+		fmt.Printf("%8d |  %10d |  %10d |  %10d |  %10d",
 			size,
 			average(functionToDuration["main.BubbleSort"]),
-			average(functionToDuration["main.QuickSort"]),
 			average(functionToDuration["sort.Ints"]),
-			average(functionToDuration["main.GoroutineSort"]),
-			average(functionToDuration["main.InPlaceSort"]))
+			average(functionToDuration["main.QuickSort"]),
+			average(functionToDuration["main.GoroutineSort"]))
 		fmt.Println()
 	}
 	fmt.Println()

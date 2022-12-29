@@ -2,18 +2,16 @@ package main
 
 import (
 	"sort"
+	"sync"
 )
 
 // A slice of all implemented sort functions.
 var SortFunctions = []func([]int){
 	BubbleSort,
-	QuickSort,
 	sort.Ints,
+	QuickSort,
 	GoroutineSort,
-	InPlaceSort,
 }
-
-// ---------------------------------------------------------------------------------
 
 // Sorts the specified list using the bubblesort algorithm.
 func BubbleSort(slice []int) {
@@ -26,101 +24,42 @@ func BubbleSort(slice []int) {
 	}
 }
 
-// ---------------------------------------------------------------------------------
-
 // Sorts the specified list using the quicksort algorithm.
 func QuickSort(slice []int) {
-	tmp := quicksort(slice)
-	copy(slice, tmp)
-}
-
-// internal helper
-func quicksort(slice []int) []int {
-	if len(slice) < 2 {
-		return slice // already sorted
-	}
-	pivot := slice[0]
-	smaller := make([]int, 0, len(slice))
-	bigger := make([]int, 0, len(slice))
-
-	for _, element := range slice[1:] {
-		if element < pivot {
-			smaller = append(smaller, element)
-		} else {
-			bigger = append(bigger, element)
-		}
-	}
-
-	result := make([]int, 0, len(slice))
-	result = append(result, quicksort(smaller)...)
-	result = append(result, pivot)
-	result = append(result, quicksort(bigger)...)
-	return result
-}
-
-// ---------------------------------------------------------------------------------
-
-// Sorts and returns the specified list using the quicksort algorithm.
-// Uses goroutines for large lists.
-func GoroutineSort(slice []int) {
-	tmp := quicksortGoroutine(slice)
-	copy(slice, tmp)
-}
-
-// internal helper
-func quicksortGoroutine(slice []int) []int {
-	if len(slice) < 2 {
-		return slice // already sorted
-	}
-	pivot := slice[0]
-	smaller := make([]int, 0, len(slice))
-	bigger := make([]int, 0, len(slice))
-
-	for _, element := range slice[1:] {
-		if element < pivot {
-			smaller = append(smaller, element)
-		} else {
-			bigger = append(bigger, element)
-		}
-	}
-
-	var first []int
-	var last []int
-
-	// Only use goroutines if we have a lot of entries.
-	if len(slice) > 5000 {
-		firstChannel := make(chan []int)
-		lastChannel := make(chan []int)
-		go channelSort(smaller, firstChannel)
-		go channelSort(bigger, lastChannel)
-		first = <-firstChannel
-		last = <-lastChannel
-	} else {
-		first = quicksortGoroutine(smaller)
-		last = quicksortGoroutine(bigger)
-	}
-
-	result := make([]int, 0, len(slice))
-	result = append(result, first...)
-	result = append(result, pivot)
-	result = append(result, last...)
-	return result
-}
-
-// internal helper to call goroutine
-func channelSort(list []int, c chan []int) {
-	c <- quicksortGoroutine(list)
-}
-
-// ---------------------------------------------------------------------------------
-
-// Sorts and returns the specified list using the quick sort algorithm.
-// Creates one copy of the list and sorts there in place.
-func InPlaceSort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
 	}
+	pivotIndex := splitUsingPivot(slice)
+	QuickSort(slice[:pivotIndex])
+	QuickSort(slice[pivotIndex+1:])
+}
 
+// Sorts the specified list using the quicksort algorithm.
+// Uses goroutines for large lists.
+func GoroutineSort(slice []int) {
+	if len(slice) < 2 {
+		return // already sorted
+	}
+	pivotIndex := splitUsingPivot(slice)
+
+	// Only use goroutines if we have a lot of entries.
+	if len(slice) > 5000 {
+		var wg sync.WaitGroup
+		wg.Add(2)
+		go parallelSort(slice[:pivotIndex], &wg)
+		go parallelSort(slice[pivotIndex+1:], &wg)
+		wg.Wait()
+	} else {
+		QuickSort(slice[:pivotIndex])
+		QuickSort(slice[pivotIndex+1:])
+	}
+}
+
+// Takes the first element of the specified slice as a pivot element. Then sorts
+// all other elements into two groups, those that are bigger and those that are
+// smaller/equal. Then arranges in the slice first the smaller/equal elements, then
+// the pivot element and finally the bigger elements. Returns the index of the pivot.
+func splitUsingPivot(slice []int) int {
 	left, right := 1, len(slice)-1
 	for left < right {
 		if slice[left] > slice[0] {
@@ -138,7 +77,11 @@ func InPlaceSort(slice []int) {
 		slice[left-1], slice[0] = slice[0], slice[left-1]
 		pivotIndex = left - 1
 	}
+	return pivotIndex
+}
 
-	InPlaceSort(slice[:pivotIndex])
-	InPlaceSort(slice[pivotIndex+1:])
+// internal helper for calling goroutine
+func parallelSort(slice []int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	GoroutineSort(slice)
 }
