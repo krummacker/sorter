@@ -35,8 +35,8 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	fmt.Println()
-	fmt.Println("Elements |      Bubble |    Standard |       Quick |   Goroutine ")
-	fmt.Println("---------+-------------+-------------+-------------+-------------")
+	fmt.Println("Elements |    Bubble/u     Bubble/s   Standard/u   Standard/s      Quick/u      Quick/s  Goroutine/u  Goroutine/s ")
+	fmt.Println("---------+--------------------------------------------------------------------------------------------------------")
 	for _, size := range sizes {
 		functionToDuration := make(map[string][]int)
 		for i := 0; i < loops; i++ {
@@ -51,20 +51,40 @@ func main() {
 
 				data := make([]int, len(original))
 				copy(data, original)
-				before := time.Now().UnixMicro()
-				sortFunction(data)
-				duration := time.Now().UnixMicro() - before
-				functionToDuration[name] = append(functionToDuration[name], int(duration))
+
+				unsortedName := name + ".unsorted"
+				unsortedDuration := runSortFunction(sortFunction, data)
+				functionToDuration[unsortedName] = append(functionToDuration[unsortedName],
+					unsortedDuration)
+
+				// Sort again the same data to discover if the sort algorithm
+				// can cope with that.
+				sortedName := name + ".sorted"
+				sortedDuration := runSortFunction(sortFunction, data)
+				functionToDuration[sortedName] = append(functionToDuration[sortedName],
+					sortedDuration)
 			}
 		}
 
-		fmt.Printf("%8d |  %10d |  %10d |  %10d |  %10d",
+		fmt.Printf("%8d |  %10d   %10d   %10d   %10d   %10d   %10d   %10d   %10d",
 			size,
-			average(functionToDuration["main.BubbleSort"]),
-			average(functionToDuration["sort.Ints"]),
-			average(functionToDuration["main.QuickSort"]),
-			average(functionToDuration["main.GoroutineSort"]))
+			average(functionToDuration["main.BubbleSort.unsorted"]),
+			average(functionToDuration["main.BubbleSort.sorted"]),
+			average(functionToDuration["sort.Ints.unsorted"]),
+			average(functionToDuration["sort.Ints.sorted"]),
+			average(functionToDuration["main.QuickSort.unsorted"]),
+			average(functionToDuration["main.QuickSort.sorted"]),
+			average(functionToDuration["main.GoroutineSort.unsorted"]),
+			average(functionToDuration["main.GoroutineSort.sorted"]))
 		fmt.Println()
 	}
 	fmt.Println()
+}
+
+// Runs the specified sort function on the specified data and returns
+// the microseconds used.
+func runSortFunction(sortFunction func([]int), data []int) int {
+	before := time.Now().UnixMicro()
+	sortFunction(data)
+	return int(time.Now().UnixMicro() - before)
 }
