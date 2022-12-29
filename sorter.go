@@ -1,26 +1,22 @@
 package main
 
-import "sort"
+import (
+	"sort"
+)
 
-type Sorter interface {
-	Sort(list []int)
-}
-
-// all sorter implementations
-var Sorters = []Sorter{
-	BubbleSorter{},
-	QuickSorter{},
-	StandardSorter{},
-	GoroutineSorter{},
-	InPlaceSorter{},
+// A slice of all implemented sort functions.
+var SortFunctions = []func([]int){
+	BubbleSort,
+	QuickSort,
+	sort.Ints,
+	GoroutineSort,
+	InPlaceSort,
 }
 
 // ---------------------------------------------------------------------------------
 
-type BubbleSorter struct{}
-
 // Sorts the specified list using the bubblesort algorithm.
-func (b BubbleSorter) Sort(slice []int) {
+func BubbleSort(slice []int) {
 	for i := 0; i < len(slice)-1; i++ {
 		for j := 0; j < len(slice)-1-i; j++ {
 			if slice[j] > slice[j+1] {
@@ -32,10 +28,8 @@ func (b BubbleSorter) Sort(slice []int) {
 
 // ---------------------------------------------------------------------------------
 
-type QuickSorter struct{}
-
 // Sorts the specified list using the quicksort algorithm.
-func (q QuickSorter) Sort(slice []int) {
+func QuickSort(slice []int) {
 	tmp := quicksort(slice)
 	copy(slice, tmp)
 }
@@ -66,20 +60,9 @@ func quicksort(slice []int) []int {
 
 // ---------------------------------------------------------------------------------
 
-type StandardSorter struct{}
-
-// Sorts the specified list using the standard Go sort algorithm.
-func (g StandardSorter) Sort(slice []int) {
-	sort.Ints(slice)
-}
-
-// ---------------------------------------------------------------------------------
-
-type GoroutineSorter struct{}
-
 // Sorts and returns the specified list using the quicksort algorithm.
 // Uses goroutines for large lists.
-func (g GoroutineSorter) Sort(slice []int) {
+func GoroutineSort(slice []int) {
 	tmp := quicksortGoroutine(slice)
 	copy(slice, tmp)
 }
@@ -131,11 +114,9 @@ func channelSort(list []int, c chan []int) {
 
 // ---------------------------------------------------------------------------------
 
-type InPlaceSorter struct{}
-
 // Sorts and returns the specified list using the quick sort algorithm.
 // Creates one copy of the list and sorts there in place.
-func (i InPlaceSorter) Sort(slice []int) {
+func InPlaceSort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
 	}
@@ -158,6 +139,6 @@ func (i InPlaceSorter) Sort(slice []int) {
 		pivotIndex = left - 1
 	}
 
-	i.Sort(slice[:pivotIndex])
-	i.Sort(slice[pivotIndex+1:])
+	InPlaceSort(slice[:pivotIndex])
+	InPlaceSort(slice[pivotIndex+1:])
 }

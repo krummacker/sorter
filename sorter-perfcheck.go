@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"reflect"
+	"runtime"
 	"time"
 )
 
@@ -37,33 +38,33 @@ func main() {
 	fmt.Println("Elements |      Bubble |       Quick |    Standard |   Goroutine |    In Place ")
 	fmt.Println("---------+-------------+-------------+-------------+-------------+-------------")
 	for _, size := range sizes {
-		sorterToDuration := make(map[string][]int)
+		functionToDuration := make(map[string][]int)
 		for i := 0; i < loops; i++ {
 			original := createRandomInts(size)
-			for _, sorter := range Sorters {
-				name := reflect.TypeOf(sorter).Name()
+			for _, sortFunction := range SortFunctions {
+				name := runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name()
 
 				// Bubble sort is too slow on large lists.
-				if name == "BubbleSorter" && size >= 10000 {
+				if name == "main.BubbleSort" && size >= 10000 {
 					continue
 				}
 
 				data := make([]int, len(original))
 				copy(data, original)
 				before := time.Now().UnixMicro()
-				sorter.Sort(data)
+				sortFunction(data)
 				duration := time.Now().UnixMicro() - before
-				sorterToDuration[name] = append(sorterToDuration[name], int(duration))
+				functionToDuration[name] = append(functionToDuration[name], int(duration))
 			}
 		}
 
 		fmt.Printf("%8d |  %10d |  %10d |  %10d |  %10d |  %10d",
 			size,
-			average(sorterToDuration["BubbleSorter"]),
-			average(sorterToDuration["QuickSorter"]),
-			average(sorterToDuration["StandardSorter"]),
-			average(sorterToDuration["GoroutineSorter"]),
-			average(sorterToDuration["InPlaceSorter"]))
+			average(functionToDuration["main.BubbleSort"]),
+			average(functionToDuration["main.QuickSort"]),
+			average(functionToDuration["sort.Ints"]),
+			average(functionToDuration["main.GoroutineSort"]),
+			average(functionToDuration["main.InPlaceSort"]))
 		fmt.Println()
 	}
 	fmt.Println()
