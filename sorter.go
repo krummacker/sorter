@@ -29,7 +29,10 @@ func QuickSort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
 	}
+
+	selectBestPivot(slice)
 	pivotIndex := splitUsingPivot(slice)
+
 	QuickSort(slice[:pivotIndex])
 	QuickSort(slice[pivotIndex+1:])
 }
@@ -40,6 +43,8 @@ func GoroutineSort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
 	}
+
+	selectBestPivot(slice)
 	pivotIndex := splitUsingPivot(slice)
 
 	// Only use goroutines if we have a lot of entries.
@@ -52,6 +57,20 @@ func GoroutineSort(slice []int) {
 	} else {
 		QuickSort(slice[:pivotIndex])
 		QuickSort(slice[pivotIndex+1:])
+	}
+}
+
+// Inspects the specified slice makes sure that the first element is a suitable pivot.
+// This implementation uses the median of the first, middle and last elements.
+func selectBestPivot(slice []int) {
+	firstIndex := 0
+	middleIndex := (len(slice) - 1) / 2
+	lastIndex := len(slice) - 1
+
+	if slice[firstIndex] <= slice[middleIndex] && slice[middleIndex] <= slice[lastIndex] {
+		slice[firstIndex], slice[middleIndex] = slice[middleIndex], slice[firstIndex]
+	} else if slice[middleIndex] <= slice[lastIndex] && slice[lastIndex] <= slice[firstIndex] {
+		slice[firstIndex], slice[lastIndex] = slice[lastIndex], slice[firstIndex]
 	}
 }
 
