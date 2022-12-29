@@ -2,91 +2,49 @@ package main
 
 import (
 	"reflect"
-	"runtime"
 	"sort"
 	"testing"
 )
 
-// Tests all sort functions with an empty slice.
-func TestBubbleSortEmpty(t *testing.T) {
+// Tests all sort functions. Test data is provided in a map.
+func TestSort(t *testing.T) {
 	for _, sortFunction := range SortFunctions {
-		slice := []int{}
-		want := []int{}
-		sortFunction(slice)
-		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
-		}
-	}
-}
 
-// Tests all sort functions with only one element.
-func TestSortOneElement(t *testing.T) {
-	for _, sortFunction := range SortFunctions {
-		slice := []int{42}
-		want := []int{42}
-		sortFunction(slice)
-		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
+		tests := map[string]struct {
+			slice []int
+			want  []int
+		}{
+			"empty_input": {
+				slice: []int{},
+				want:  []int{},
+			},
+			"one_element": {
+				slice: []int{42},
+				want:  []int{42},
+			},
+			"three_elements_sorted": {
+				slice: []int{1, 2, 3},
+				want:  []int{1, 2, 3},
+			},
+			"three_elements_not_sorted": {
+				slice: []int{3, 1, 2},
+				want:  []int{1, 2, 3},
+			},
+			"all_elements_positive": {
+				slice: []int{4, 7, 4, 2, 8, 9, 6},
+				want:  []int{2, 4, 4, 6, 7, 8, 9},
+			},
+			"all_elements_positive_negative": {
+				slice: []int{4, 7, -4, 2, -8, 9, 6},
+				want:  []int{-8, -4, 2, 4, 6, 7, 9},
+			},
 		}
-	}
-}
 
-// Tests all sort functions with two elements that are already sorted.
-func TestTwoElementsSorted(t *testing.T) {
-	for _, sortFunction := range SortFunctions {
-		slice := []int{1, 2}
-		want := []int{1, 2}
-		sortFunction(slice)
-		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
-		}
-	}
-}
-
-// Tests all sort functions with two elements that are not sorted.
-func TestTwoElementsNotSorted(t *testing.T) {
-	for _, sortFunction := range SortFunctions {
-		slice := []int{2, 1}
-		want := []int{1, 2}
-		sortFunction(slice)
-		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
-		}
-	}
-}
-
-// Tests all sort functions with a list of positive numbers.
-func TestSortAllPositive(t *testing.T) {
-	for _, sortFunction := range SortFunctions {
-		slice := []int{4, 7, 4, 2, 8, 9, 6}
-		want := []int{2, 4, 4, 6, 7, 8, 9}
-		sortFunction(slice)
-		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
-		}
-	}
-}
-
-// Tests all sort functions with positive and negative numbers.
-func TestSortPositiveNegative(t *testing.T) {
-	for _, sortFunction := range SortFunctions {
-		slice := []int{4, 7, -4, 2, -8, 9, 6}
-		want := []int{-8, -4, 2, 4, 6, 7, 9}
-		sortFunction(slice)
-		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
+		for name, test := range tests {
+			sortFunction(test.slice)
+			if !reflect.DeepEqual(test.slice, test.want) {
+				t.Errorf("%s: got %v but want %v", name, test.slice, test.want)
+			}
 		}
 	}
 }
@@ -100,9 +58,7 @@ func TestLargeSlice(t *testing.T) {
 		sort.Ints(want)
 		sortFunction(slice)
 		if !reflect.DeepEqual(slice, want) {
-			t.Errorf("%s: got %v but want %v",
-				runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name(),
-				slice, want)
+			t.Errorf("%s: got %v but want %v", "large_slice", slice, want)
 		}
 	}
 }
