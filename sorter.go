@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// A slice of all implemented sort functions.
+// SortFunctions is a slice of all sort functions implemented in this package.
 var SortFunctions = []func([]int){
 	BubbleSort,
 	sort.Ints,
@@ -13,7 +13,7 @@ var SortFunctions = []func([]int){
 	GoroutineSort,
 }
 
-// Sorts the specified list using the bubblesort algorithm.
+// BubbleSort sorts the specified list using the bubblesort algorithm.
 func BubbleSort(slice []int) {
 	for i := 0; i < len(slice)-1; i++ {
 		for j := 0; j < len(slice)-1-i; j++ {
@@ -24,7 +24,7 @@ func BubbleSort(slice []int) {
 	}
 }
 
-// Sorts the specified list using the quicksort algorithm.
+// QuickSort sorts the specified list using the quicksort algorithm.
 func QuickSort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
@@ -37,8 +37,8 @@ func QuickSort(slice []int) {
 	QuickSort(slice[pivotIndex+1:])
 }
 
-// Sorts the specified list using the quicksort algorithm.
-// Uses goroutines for large lists.
+// GoroutineSort sorts the specified list using the quicksort algorithm.
+// This function uses goroutines for large lists.
 func GoroutineSort(slice []int) {
 	if len(slice) < 2 {
 		return // already sorted
@@ -60,8 +60,9 @@ func GoroutineSort(slice []int) {
 	}
 }
 
-// Inspects the specified slice makes sure that the first element is a suitable pivot.
-// This implementation uses the median of the first, middle and last elements.
+// selectBestPivot inspects the specified slice and makes sure that the first
+// element is a suitable pivot. This implementation uses the median of the
+// first, middle and last elements.
 func selectBestPivot(slice []int) {
 	firstIndex := 0
 	middleIndex := (len(slice) - 1) / 2
@@ -74,10 +75,11 @@ func selectBestPivot(slice []int) {
 	}
 }
 
-// Takes the first element of the specified slice as a pivot element. Then sorts
-// all other elements into two groups, those that are bigger and those that are
-// smaller/equal. Then arranges in the slice first the smaller/equal elements, then
-// the pivot element and finally the bigger elements. Returns the index of the pivot.
+// splitUsingPivot takes the first element of the specified slice as a pivot
+// element. Then it sorts all other elements into two groups, those that are
+// bigger and those that are smaller/equal. It then arranges in the slice first
+// the smaller/equal elements, then the pivot element and finally the bigger
+// elements. The function returns the index of the pivot.
 func splitUsingPivot(slice []int) int {
 	left, right := 1, len(slice)-1
 	for left < right {
@@ -99,7 +101,7 @@ func splitUsingPivot(slice []int) int {
 	return pivotIndex
 }
 
-// internal helper for calling goroutine
+// parallelSort is an internal helper for calling goroutine.
 func parallelSort(slice []int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	GoroutineSort(slice)

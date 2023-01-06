@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Tests all sort functions. Test data is provided in a map.
+// TestSort tests all sort functions. Test data is provided in a map.
 func TestSort(t *testing.T) {
 	for _, sortFunction := range SortFunctions {
 
@@ -49,10 +49,10 @@ func TestSort(t *testing.T) {
 	}
 }
 
-// Tests all sort functions with a large unsorted slice.
+// TestLargeSlice tests all sort functions with a large unsorted slice.
 func TestLargeSlice(t *testing.T) {
 	for _, sortFunction := range SortFunctions {
-		slice := createRandomInts(1000)
+		slice := CreateRandomInts(1000)
 		want := make([]int, 1000)
 		copy(want, slice)
 		sort.Ints(want)

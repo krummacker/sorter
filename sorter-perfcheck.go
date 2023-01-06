@@ -8,7 +8,9 @@ import (
 	"time"
 )
 
-func createRandomInts(size int) []int {
+// CreateRandomInts returns a slice of the specified length that consists of
+// random positive int values.
+func CreateRandomInts(size int) []int {
 	result := make([]int, size)
 	for i := 0; i < size; i++ {
 		result[i] = int(rand.Int())
@@ -16,8 +18,9 @@ func createRandomInts(size int) []int {
 	return result
 }
 
-// Returns the average of the specified ints or 0 if there are no elements.
-func average(input []int) int {
+// Average returns the average of the specified ints or 0 if there are no
+// elements.
+func Average(input []int) int {
 	if len(input) == 0 {
 		return 0
 	}
@@ -40,7 +43,7 @@ func main() {
 	for _, size := range sizes {
 		functionToDuration := make(map[string][]int)
 		for i := 0; i < loops; i++ {
-			original := createRandomInts(size)
+			original := CreateRandomInts(size)
 			for _, sortFunction := range SortFunctions {
 				name := runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name()
 
@@ -68,21 +71,21 @@ func main() {
 
 		fmt.Printf("%8d |  %10d   %10d   %10d   %10d   %10d   %10d   %10d   %10d",
 			size,
-			average(functionToDuration["main.BubbleSort.unsorted"]),
-			average(functionToDuration["main.BubbleSort.sorted"]),
-			average(functionToDuration["sort.Ints.unsorted"]),
-			average(functionToDuration["sort.Ints.sorted"]),
-			average(functionToDuration["main.QuickSort.unsorted"]),
-			average(functionToDuration["main.QuickSort.sorted"]),
-			average(functionToDuration["main.GoroutineSort.unsorted"]),
-			average(functionToDuration["main.GoroutineSort.sorted"]))
+			Average(functionToDuration["main.BubbleSort.unsorted"]),
+			Average(functionToDuration["main.BubbleSort.sorted"]),
+			Average(functionToDuration["sort.Ints.unsorted"]),
+			Average(functionToDuration["sort.Ints.sorted"]),
+			Average(functionToDuration["main.QuickSort.unsorted"]),
+			Average(functionToDuration["main.QuickSort.sorted"]),
+			Average(functionToDuration["main.GoroutineSort.unsorted"]),
+			Average(functionToDuration["main.GoroutineSort.sorted"]))
 		fmt.Println()
 	}
 	fmt.Println()
 }
 
-// Runs the specified sort function on the specified data and returns
-// the microseconds used.
+// runSortFunction executes the specified sort function on the specified data
+// and returns the microseconds used.
 func runSortFunction(sortFunction func([]int), data []int) int {
 	before := time.Now().UnixMicro()
 	sortFunction(data)

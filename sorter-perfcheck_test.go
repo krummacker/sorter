@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-// Tests the createRandomInts function.
+// TestCreateRandomInts tests the createRandomInts function.
 func TestCreateRandomInts(t *testing.T) {
 
 	tests := map[string]struct {
@@ -26,14 +26,14 @@ func TestCreateRandomInts(t *testing.T) {
 	}
 
 	for name, test := range tests {
-		got := createRandomInts(test.size)
+		got := CreateRandomInts(test.size)
 		if len(got) != test.want {
 			t.Errorf("%s: got %v but want %v", name, got, test.want)
 		}
 	}
 }
 
-// Tests the average function.
+// TestAverage tests the average function.
 func TestAverage(t *testing.T) {
 
 	tests := map[string]struct {
@@ -55,7 +55,7 @@ func TestAverage(t *testing.T) {
 	}
 
 	for name, test := range tests {
-		got := average(test.input)
+		got := Average(test.input)
 		if got != test.want {
 			t.Errorf("%s: got %v but want %v", name, got, test.want)
 		}
