@@ -101,7 +101,7 @@ func splitUsingPivot(slice []int) int {
 	return pivotIndex
 }
 
-// parallelSort is an internal helper for calling goroutine.
+// parallelSort is an internal helper for calling the goroutine function.
 func parallelSort(slice []int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	GoroutineSort(slice)
