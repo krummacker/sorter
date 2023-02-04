@@ -38,7 +38,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	fmt.Println()
-	fmt.Println("Elements |    Bubble/u     Bubble/s   Standard/u   Standard/s      Quick/u      Quick/s  Goroutine/u  Goroutine/s ")
+	fmt.Println("Elements |    Bubble/u     Bubble/s      Quick/u      Quick/s  Goroutine/u  Goroutine/s   Standard/u   Standard/s ")
 	fmt.Println("---------+--------------------------------------------------------------------------------------------------------")
 	for _, size := range sizes {
 		functionToDuration := make(map[string][]int)
@@ -73,12 +73,12 @@ func main() {
 			size,
 			Average(functionToDuration["main.BubbleSort.unsorted"]),
 			Average(functionToDuration["main.BubbleSort.sorted"]),
-			Average(functionToDuration["sort.Ints.unsorted"]),
-			Average(functionToDuration["sort.Ints.sorted"]),
 			Average(functionToDuration["main.QuickSort.unsorted"]),
 			Average(functionToDuration["main.QuickSort.sorted"]),
 			Average(functionToDuration["main.GoroutineSort.unsorted"]),
-			Average(functionToDuration["main.GoroutineSort.sorted"]))
+			Average(functionToDuration["main.GoroutineSort.sorted"]),
+			Average(functionToDuration["sort.Ints.unsorted"]),
+			Average(functionToDuration["sort.Ints.sorted"]))
 		fmt.Println()
 	}
 	fmt.Println()
