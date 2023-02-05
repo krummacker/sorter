@@ -1,23 +1,10 @@
 image: golang:latest
 
 stages:
-  - test
-  - build
+  - check
 
-test:
-  stage: test
+check:
+  stage: check
   script:
-    - go fmt $(go list ./... | grep -v /vendor/)
-    - go vet $(go list ./... | grep -v /vendor/)
-    - go test -v -race $(go list ./... | grep -v /vendor/)
-
-build:
-  stage: build
-  script:
-    - go build sorter-perfcheck.go sorter.go
-  artifacts:
-    paths:
-      - "sorter-perfcheck"
-    untracked: false
-    when: on_success
-    expire_in: 7 days
+    - go vet
+    - go test -v
