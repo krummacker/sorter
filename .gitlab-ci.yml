@@ -8,3 +8,4 @@ check:
   script:
     - go vet
     - go test -v
+    - go run sorter-perfcheck.go sorter.go
