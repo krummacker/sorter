@@ -6,6 +6,7 @@ stages:
 check:
   stage: check
   script:
+    - go version
     - go vet
     - go test -v
     - go run sorter-perfcheck.go sorter.go
