@@ -1,3 +1,3 @@
 module gitlab.com/dirk.krummacker/sorter
 
-go 1.17
+go 1.20

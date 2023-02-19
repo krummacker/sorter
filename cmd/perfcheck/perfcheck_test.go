@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"gitlab.com/dirk.krummacker/sorter/internal/sorter"
 )
 
 // TestCreateRandomInts tests the createRandomInts function.
@@ -26,7 +28,7 @@ func TestCreateRandomInts(t *testing.T) {
 	}
 
 	for name, test := range tests {
-		got := CreateRandomInts(test.size)
+		got := sorter.CreateRandomInts(test.size)
 		if len(got) != test.want {
 			t.Errorf("%s: got %v but want %v", name, got, test.want)
 		}

@@ -1,9 +1,20 @@
-package main
+package sorter
 
 import (
+	"math/rand"
 	"sort"
 	"sync"
 )
+
+// CreateRandomInts returns a slice of the specified length that consists of
+// random positive int values.
+func CreateRandomInts(size int) []int {
+	result := make([]int, size)
+	for i := 0; i < size; i++ {
+		result[i] = int(rand.Int())
+	}
+	return result
+}
 
 // SortFunctions is a slice of all sort functions implemented in this package.
 var SortFunctions = []func([]int){

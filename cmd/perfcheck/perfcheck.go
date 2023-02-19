@@ -2,21 +2,12 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"reflect"
 	"runtime"
 	"time"
-)
 
-// CreateRandomInts returns a slice of the specified length that consists of
-// random positive int values.
-func CreateRandomInts(size int) []int {
-	result := make([]int, size)
-	for i := 0; i < size; i++ {
-		result[i] = int(rand.Int())
-	}
-	return result
-}
+	"gitlab.com/dirk.krummacker/sorter/internal/sorter"
+)
 
 // Average returns the average of the specified ints or 0 if there are no
 // elements.
@@ -31,11 +22,10 @@ func Average(input []int) int {
 	return sum / len(input)
 }
 
+// Usage example: go run cmd/perfcheck/perfcheck.go
 func main() {
 	sizes := []int{10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000}
 	loops := 10
-
-	rand.Seed(time.Now().UnixNano())
 
 	fmt.Println()
 	fmt.Println("Elements |    Bubble/u     Bubble/s      Quick/u      Quick/s  Goroutine/u  Goroutine/s   Standard/u   Standard/s ")
@@ -43,12 +33,12 @@ func main() {
 	for _, size := range sizes {
 		functionToDuration := make(map[string][]int)
 		for i := 0; i < loops; i++ {
-			original := CreateRandomInts(size)
-			for _, sortFunction := range SortFunctions {
+			original := sorter.CreateRandomInts(size)
+			for _, sortFunction := range sorter.SortFunctions {
 				name := runtime.FuncForPC(reflect.ValueOf(sortFunction).Pointer()).Name()
 
 				// Bubble sort is too slow on large lists.
-				if name == "main.BubbleSort" && size >= 10000 {
+				if name == "gitlab.com/dirk.krummacker/sorter/internal/sorter.BubbleSort" && size >= 10000 {
 					continue
 				}
 
@@ -71,12 +61,12 @@ func main() {
 
 		fmt.Printf("%8d |  %10d   %10d   %10d   %10d   %10d   %10d   %10d   %10d",
 			size,
-			Average(functionToDuration["main.BubbleSort.unsorted"]),
-			Average(functionToDuration["main.BubbleSort.sorted"]),
-			Average(functionToDuration["main.QuickSort.unsorted"]),
-			Average(functionToDuration["main.QuickSort.sorted"]),
-			Average(functionToDuration["main.GoroutineSort.unsorted"]),
-			Average(functionToDuration["main.GoroutineSort.sorted"]),
+			Average(functionToDuration["gitlab.com/dirk.krummacker/sorter/internal/sorter.BubbleSort.unsorted"]),
+			Average(functionToDuration["gitlab.com/dirk.krummacker/sorter/internal/sorter.BubbleSort.sorted"]),
+			Average(functionToDuration["gitlab.com/dirk.krummacker/sorter/internal/sorter.QuickSort.unsorted"]),
+			Average(functionToDuration["gitlab.com/dirk.krummacker/sorter/internal/sorter.QuickSort.sorted"]),
+			Average(functionToDuration["gitlab.com/dirk.krummacker/sorter/internal/sorter.GoroutineSort.unsorted"]),
+			Average(functionToDuration["gitlab.com/dirk.krummacker/sorter/internal/sorter.GoroutineSort.sorted"]),
 			Average(functionToDuration["sort.Ints.unsorted"]),
 			Average(functionToDuration["sort.Ints.sorted"]))
 		fmt.Println()

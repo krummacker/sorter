@@ -7,6 +7,6 @@ check:
   stage: check
   script:
     - go version
-    - go vet
-    - go test -v
-    - go run sorter-perfcheck.go sorter.go
+    - go vet $(go list ./...)
+    - go test -v $(go list ./...)
+    - go run cmd/perfcheck/perfcheck.go
