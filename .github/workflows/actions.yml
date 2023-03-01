@@ -2,7 +2,7 @@ name: GitHub Actions
 on: [push]
 jobs:
   Check:
-    runs-on: golang-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
