@@ -20,7 +20,7 @@ func TestSort(t *testing.T) {
 			},
 			"one_element": {
 				slice: []int{42},
-				want:  []int{43},
+				want:  []int{42},
 			},
 			"three_elements_sorted": {
 				slice: []int{1, 2, 3},
