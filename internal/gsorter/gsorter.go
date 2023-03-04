@@ -36,106 +36,107 @@ var SortFunctions = []func(sort.Interface){
 	GoroutineSort,
 }
 
-// BubbleSort sorts the specified list using the bubblesort algorithm.
-func BubbleSort(list sort.Interface) {
-	for i := 0; i < list.Len()-1; i++ {
-		for j := 0; j < list.Len()-1-i; j++ {
-			if list.Less(j+1, j) {
-				list.Swap(j+1, j)
+// BubbleSort sorts the specified data using the bubblesort algorithm.
+func BubbleSort(data sort.Interface) {
+	length := data.Len()
+	for i := 0; i < length-1; i++ {
+		for j := 0; j < length-1-i; j++ {
+			if data.Less(j+1, j) {
+				data.Swap(j+1, j)
 			}
 		}
 	}
 }
 
-// QuickSort sorts the specified list using the quicksort algorithm.
-func QuickSort(list sort.Interface) {
-	quickSortRange(list, 0, list.Len()-1)
+// QuickSort sorts the specified data using the quicksort algorithm.
+func QuickSort(data sort.Interface) {
+	quickSortRange(data, 0, data.Len()-1)
 }
 
 // quickSortRange is an internal function for recursive calls. It sorts only
-// those parts of the list specified by the 'from' and 'to' indexes.
-func quickSortRange(list sort.Interface, from int, to int) {
+// those parts of the data specified by the 'from' and 'to' indexes.
+func quickSortRange(data sort.Interface, from int, to int) {
 	if to-from < 1 {
 		return // already sorted
 	}
-	selectBestPivot(list, from, to)
-	pivotIndex := splitUsingPivot(list, from, to)
-	quickSortRange(list, from, pivotIndex-1)
-	quickSortRange(list, pivotIndex+1, to)
+	selectBestPivot(data, from, to)
+	pivotIndex := splitUsingPivot(data, from, to)
+	quickSortRange(data, from, pivotIndex-1)
+	quickSortRange(data, pivotIndex+1, to)
 }
 
-// selectBestPivot inspects the specified list and makes sure that the first
+// selectBestPivot inspects the specified data and makes sure that the first
 // element is a suitable pivot. This implementation uses the median of the
 // first, middle and last elements.
-func selectBestPivot(list sort.Interface, from int, to int) {
+func selectBestPivot(data sort.Interface, from int, to int) {
 	firstIndex := from
 	middleIndex := from + (to-from)/2
 	lastIndex := to
-	if list.Less(firstIndex, middleIndex) && list.Less(middleIndex, lastIndex) {
-		list.Swap(firstIndex, middleIndex)
-	} else if list.Less(middleIndex, lastIndex) && list.Less(lastIndex, firstIndex) {
-		list.Swap(firstIndex, lastIndex)
+	if data.Less(firstIndex, middleIndex) && data.Less(middleIndex, lastIndex) {
+		data.Swap(firstIndex, middleIndex)
+	} else if data.Less(middleIndex, lastIndex) && data.Less(lastIndex, firstIndex) {
+		data.Swap(firstIndex, lastIndex)
 	}
 }
 
-// splitUsingPivot takes the first element of the specified list as a pivot
+// splitUsingPivot takes the first element of the specified data as a pivot
 // element. Then it sorts all other elements into two groups, those that are
-// bigger and those that are smaller/equal. It then arranges in the list first
+// bigger and those that are smaller/equal. It then arranges in the data first
 // the smaller/equal elements, then the pivot element and finally the bigger
 // elements. The function returns the index of the pivot.
-func splitUsingPivot(list sort.Interface, from int, to int) int {
+func splitUsingPivot(data sort.Interface, from int, to int) int {
 	left, right := from+1, to
 	for left < right {
-		if list.Less(from, left) {
-			list.Swap(left, right)
+		if data.Less(from, left) {
+			data.Swap(left, right)
 			right -= 1
 		} else {
 			left += 1
 		}
 	}
 	var pivotIndex int
-	if list.Less(left, from) {
-		list.Swap(from, left)
+	if data.Less(left, from) {
+		data.Swap(from, left)
 		pivotIndex = left
 	} else {
-		list.Swap(from, left-1)
+		data.Swap(from, left-1)
 		pivotIndex = left - 1
 	}
 	return pivotIndex
 }
 
-// GoroutineSort sorts the specified list using the quicksort algorithm.
+// GoroutineSort sorts the specified data using the quicksort algorithm.
 // This function uses goroutines for large lists.
-func GoroutineSort(list sort.Interface) {
-	goroutineSortRange(list, 0, list.Len()-1)
+func GoroutineSort(data sort.Interface) {
+	goroutineSortRange(data, 0, data.Len()-1)
 }
 
 // goroutineSortRange is an internal function for recursive calls. It sorts
-// only those parts of the list specified by the 'from' and 'to' indexes.
-func goroutineSortRange(list sort.Interface, from int, to int) {
+// only those parts of the data specified by the 'from' and 'to' indexes.
+func goroutineSortRange(data sort.Interface, from int, to int) {
 	if to-from < 1 {
 		return // already sorted
 	}
-	selectBestPivot(list, from, to)
-	pivotIndex := splitUsingPivot(list, from, to)
+	selectBestPivot(data, from, to)
+	pivotIndex := splitUsingPivot(data, from, to)
 
 	// Only use goroutines if we have a lot of entries.
 	if to-from > 5000 {
 		var wg sync.WaitGroup
 		wg.Add(2)
-		go parallelSort(list, from, pivotIndex-1, &wg)
-		go parallelSort(list, pivotIndex+1, to, &wg)
+		go parallelSort(data, from, pivotIndex-1, &wg)
+		go parallelSort(data, pivotIndex+1, to, &wg)
 		wg.Wait()
 	} else {
-		quickSortRange(list, from, pivotIndex-1)
-		quickSortRange(list, pivotIndex+1, to)
+		quickSortRange(data, from, pivotIndex-1)
+		quickSortRange(data, pivotIndex+1, to)
 	}
 }
 
 // parallelSort is an internal helper for calling the goroutine function.
-func parallelSort(list sort.Interface, from int, to int, wg *sync.WaitGroup) {
+func parallelSort(data sort.Interface, from int, to int, wg *sync.WaitGroup) {
 	defer wg.Done()
-	goroutineSortRange(list, from, to)
+	goroutineSortRange(data, from, to)
 }
 
 // CreateRandomInts returns a slice of the specified size that consists of
