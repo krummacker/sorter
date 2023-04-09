@@ -5,9 +5,10 @@ pipelines:
     - step:
         name: Check
         script:
+          - uname -a
           - go version
-          - go test -v $(go list ./...)
           - go vet $(go list ./...)
+          - go install honnef.co/go/tools/cmd/staticcheck@latest
+          - staticcheck ./...
+          - go test -v $(go list ./...)
           - go run cmd/perfcheck/perfcheck.go
-
-
